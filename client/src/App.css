@@ -79,4 +79,51 @@ div.post p.info a.author {
 div.post p.description {
   margin: 10px 0;
   line-height: 1.4rem;
+  height: 90px; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: height 0.3s ease;
+}
+
+div.post p.description.expanded {
+  height: auto;
+}
+
+div.post .footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.read-more {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.read-more:hover {
+  text-decoration: underline;
+}
+
+.reading-time {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.full-article {
+  padding: 20px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.full-article h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.full-article p {
+  line-height: 1.6rem;
+  font-size: 1rem;
 }
