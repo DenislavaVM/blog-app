@@ -1,4 +1,12 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import './App.css';
+import Post from './components/Post';
+import FullArticle from './components/FullArticle';
+
+function Home({ posts }) {
+  return posts.map(post => <Post key={post.id} post={post} />);
+}
 
 function App() {
   const posts = [
@@ -13,30 +21,24 @@ function App() {
 
 
   return (
-    <main>
-      <header>
-        <a href="/" className="logo">Blog</a>
-        <nav>
-          <a href="/login">Login</a>
-          <a href="/register">Register</a>
-        </nav>
-      </header>
-      {posts.map((post, index) => (
-        <div className="post" key={index}>
-          <div className="image">
-            <img src={post.imgSrc} alt={post.title} />
-          </div>
-          <div className="content">
-            <h2>{post.title}</h2>
-            <p className="info">
-              <a href="#" className="author">{post.author}</a>
-              <time>{post.date}</time>
-            </p>
-            <p className="description">{post.description}</p>
-          </div>
-        </div>
-      ))}
-    </main>
+    <Router>
+      <main>
+        <header>
+          <Link to="/" className="logo">Blog</Link>
+          <nav>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+          </nav>
+        </header>
+
+        <Routes>
+          <Route path="/" element={<Home posts={posts} />} />
+          {posts.map(post => (
+            <Route key={post.id} path={`/post/${post.id}`} element={<FullArticle post={post} />} />
+          ))}
+        </Routes>
+      </main>
+    </Router>
   );
 }
 
