@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './AuthContainer.css';
+import "./AuthContainer.css";
 
 function RegisterPage() {
 
@@ -9,11 +9,30 @@ function RegisterPage() {
 
   async function register(ev) {
     ev.preventDefault();
-    await fetch("http://localhost:5000/register", {
-      method: "POST",
-      body: JSON.stringify({ username, email, password }),
-      headers: { "Content-Type": "application/json" },
-    });
+
+    if (!username || !email || !password) {
+      alert("All fields are required.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/register", {
+        method: "POST",
+        body: JSON.stringify({ username, email, password }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) { 
+        alert("Registration successful");
+      } else {
+        alert("Registration failed: " + data.error); // Display the server's error message
+      }
+    } catch (error) {
+      console.error("An error occurred during registration:", error);
+      alert("An error occurred. Please try again.");
+    }
   }
 
   return (
