@@ -11,7 +11,7 @@ const app = express();
 const salt = bcrypt.genSaltSync(10);
 const secret = process.env.JWT_SECRET;
 
-app.use(cors());
+app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 app.use(express.json());
 
 mongoose.connect(process.env.MONGODB_URI)
@@ -59,7 +59,13 @@ app.post("/login", async (req, res) => {
             if (error) {
                 throw error;
             }
-            res.cookie("token", token, { httpOnly: true, secure: true });
+          
+          res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: "Strict",
+            maxAge: 3600000 // 1 hour
+        });
 
             res.json({ message: "Login successful" });
         });
@@ -69,8 +75,6 @@ app.post("/login", async (req, res) => {
         res.status(500).json({ error: "Login failed" });
     }
 });
-
-
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

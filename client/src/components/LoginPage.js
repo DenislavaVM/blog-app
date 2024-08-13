@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import './AuthContainer.css';
+import React, { useState } from "react";
+import { Navigate } from "react-router-dom";
+import "./AuthContainer.css";
 
 function LoginPage() {
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
+  const [redirect, setRedirect] = useState("");
 
   async function login(ev) {
     ev.preventDefault();
@@ -15,13 +15,15 @@ function LoginPage() {
         method: "POST",
         body: JSON.stringify({ username, password }),
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
       });
 
       const data = await response.json();
 
       if (response.ok) {
         alert("Login successful");
-        // Redirect to another page
+        setRedirect(true);
+
       } else {
         alert("Login failed: " + data.error);
       }
@@ -29,6 +31,10 @@ function LoginPage() {
       console.error("An error occurred during login:", error);
       alert("An error occurred. Please try again.");
     }
+  }
+
+  if (redirect) {
+    return <Navigate to={"/"} />
   }
 
   return (
