@@ -5,14 +5,16 @@ require('dotenv').config();
 const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 
-const app = express(); 
+const app = express();
 
 const salt = bcrypt.genSaltSync(10);
 const secret = process.env.JWT_SECRET;
 
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 app.use(express.json());
+app.use(cookieParser());
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log("Connected to MongoDB"))
@@ -45,7 +47,7 @@ app.post("/login", async (req, res) => {
     const { username, password } = req.body;
     try {
         const existingUser = await User.findOne({ username });
-        
+
         if (!existingUser) {
             return res.status(400).json({ error: "User not found" });
         }
@@ -59,13 +61,13 @@ app.post("/login", async (req, res) => {
             if (error) {
                 throw error;
             }
-          
-          res.cookie("token", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: "Strict",
-            maxAge: 3600000 // 1 hour
-        });
+
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: "Strict",
+                maxAge: 3600000 // 1 hour
+            });
 
             res.json({ message: "Login successful" });
         });
@@ -74,6 +76,21 @@ app.post("/login", async (req, res) => {
         console.error("Login error:", error);
         res.status(500).json({ error: "Login failed" });
     }
+});
+
+app.get("/profile", (req, res) => {
+    const { token } = req.cookies;
+    
+    if (!token) {
+        return res.status(401).json({ error: "No token provided" });
+    }
+    
+    jwt.verify(token, secret, {}, (err, info) => {
+        if (err) {
+            return res.status(401).json({ error: "Invalid or expired token" });
+        }
+        res.json(info);
+    });
 });
 
 const PORT = process.env.PORT || 5000;
