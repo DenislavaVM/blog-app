@@ -1,7 +1,15 @@
 const express = require("express");
+const cors = require("cors");
+
 const app = express();
 
-app.get("/test", (req, res) => {
+app.use(cors());
+
+app.post("/register", (req, res) => {
     res.json("Test")
 })
-app.listen(5000);
+
+const PORT = 5000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
