@@ -48,8 +48,8 @@ export default function CreatePostPage() {
           onChange={(ev) => setTitle(ev.target.value)}
           required
         />
-         <input
-          type="summary"
+        <input
+          type="text"
           placeholder="Summary"
           value={summary}
           onChange={(ev) => setSummary(ev.target.value)}
