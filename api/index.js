@@ -6,6 +6,9 @@ const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const multer = require("multer");
+const { Dropbox } = require("dropbox");
+const fs = require("fs");
 
 const app = express();
 
@@ -19,6 +22,10 @@ app.use(cookieParser());
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log("Connected to MongoDB"))
     .catch(err => console.error("Failed to connect to MongoDB", err));
+
+const dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN });
+
+const upload = multer({ dest: "uploads/" });
 
 app.post("/register", async (req, res) => {
     const { username, email, password } = req.body;
@@ -106,6 +113,30 @@ app.post("/logout", (req, res) => {
     }).json({ message: "Logout successful" });
 });
 
+app.post("/posts", upload.single("image"), async (req, res) => {
+    try {
+        const { title, summary, content } = req.body;
+        const imageFile = req.file;
+
+        if (!imageFile) {
+            return res.status(400).json({ error: "Image is required" });
+        }
+
+        const dropboxPath = `/uploads/${Date.now()}_${imageFile.originalname}`;
+        const fileContent = fs.readFileSync(imageFile.path);
+        
+        await dbx.filesUpload({ path: dropboxPath, contents: fileContent });
+
+        // save the file URL and other post details to MongoDB
+
+        res.status(201).json({ message: "Post created successfully!" });
+
+        fs.unlinkSync(imageFile.path);
+    } catch (error) {
+        console.error("Error creating post:", error);
+        res.status(500).json({ error: "Failed to create post" });
+    }
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
