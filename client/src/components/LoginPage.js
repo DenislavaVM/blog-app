@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Navigate } from "react-router-dom";
 import "./AuthContainer.css";
+import { UserContext } from "../context/UserContext"
 
 function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [redirect, setRedirect] = useState("");
+  const [redirect, setRedirect] = useState(false); 
+  const { setUserInfo } = useContext(UserContext);
 
   async function login(ev) {
     ev.preventDefault();
@@ -18,12 +20,11 @@ function LoginPage() {
         credentials: "include",
       });
 
-      const data = await response.json();
+      const data = await response.json(); 
 
       if (response.ok) {
-        alert("Login successful");
-        setRedirect(true);
-
+        setUserInfo(data); 
+        setRedirect(true); 
       } else {
         alert("Login failed: " + data.error);
       }
@@ -34,7 +35,7 @@ function LoginPage() {
   }
 
   if (redirect) {
-    return <Navigate to={"/"} />
+    return <Navigate to="/" />; 
   }
 
   return (
