@@ -1,10 +1,10 @@
-import React from 'react';
-import { Route } from 'react-router-dom';
-import Home from '../components/Home';
-import FullArticle from '../components/FullArticle';
-import LoginPage from '../components/LoginPage';
-import RegisterPage from '../components/RegisterPage';
-import posts from '../data/posts';
+import React from "react";
+import { Route } from "react-router-dom";
+import Home from "../components/Home";
+import FullArticle from "../components/FullArticle";
+import LoginPage from "../components/LoginPage";
+import RegisterPage from "../components/RegisterPage";
+import posts from "../data/posts";
 
 const routes = (
   <>
