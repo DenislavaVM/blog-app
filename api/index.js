@@ -69,7 +69,10 @@ app.post("/login", async (req, res) => {
                 maxAge: 3600000 // 1 hour
             });
 
-            res.json({ message: "Login successful" });
+            res.json({
+                id: existingUser._id,
+                username,
+            });
         });
 
     } catch (error) {
@@ -99,7 +102,7 @@ app.post("/logout", (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
-        expires: new Date(0) 
+        expires: new Date(0)
     }).json({ message: "Logout successful" });
 });
 
