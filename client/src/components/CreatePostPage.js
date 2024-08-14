@@ -14,6 +14,7 @@ export default function CreatePostPage() {
 
     const formData = new FormData();
     formData.append("title", title);
+    formData.append("summary", summary);
     formData.append("content", content);
     formData.append("image", image);
 
