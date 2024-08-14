@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-require('dotenv').config();
+require("dotenv").config();
 const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -57,14 +57,14 @@ app.post("/login", async (req, res) => {
             return res.status(400).json({ error: "Invalid password" });
         }
 
-        jwt.sign({ username, id: existingUser._id }, secret, { expiresIn: '1h' }, (error, token) => {
+        jwt.sign({ username, id: existingUser._id }, secret, { expiresIn: "1h" }, (error, token) => {
             if (error) {
                 throw error;
             }
 
             res.cookie("token", token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
+                secure: process.env.NODE_ENV === "production",
                 sameSite: "Strict",
                 maxAge: 3600000 // 1 hour
             });
@@ -80,11 +80,11 @@ app.post("/login", async (req, res) => {
 
 app.get("/profile", (req, res) => {
     const { token } = req.cookies;
-    
+
     if (!token) {
         return res.status(401).json({ error: "No token provided" });
     }
-    
+
     jwt.verify(token, secret, {}, (err, info) => {
         if (err) {
             return res.status(401).json({ error: "Invalid or expired token" });
@@ -92,6 +92,17 @@ app.get("/profile", (req, res) => {
         res.json(info);
     });
 });
+
+
+app.post("/logout", (req, res) => {
+    res.cookie("token", "", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        expires: new Date(0) 
+    }).json({ message: "Logout successful" });
+});
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
