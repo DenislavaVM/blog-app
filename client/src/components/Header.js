@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 function Header() {
-
-  const [username, setUsername] = useState(null);
+  const { setUserInfo, userInfo } = useContext(UserContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,17 +14,17 @@ function Header() {
         if (response.ok) {
           return response.json();
         } else {
-          setUsername(null);
+          setUserInfo(null);
           throw new Error("No token provided");
         }
       })
-      .then(data => {
-        setUsername(data.username);
+      .then(userInfo => {
+        setUserInfo(userInfo);
       })
       .catch(error => {
         console.error("Error fetching profile:", error);
       });
-  }, []);
+  }, [setUserInfo]);
 
   function logout() {
     fetch("http://localhost:5000/logout", {
@@ -33,8 +33,8 @@ function Header() {
     })
       .then(response => {
         if (response.ok) {
-          setUsername(null); 
-          navigate("/"); 
+          setUserInfo(null);
+          navigate("/");
         } else {
           console.error("Logout failed");
         }
@@ -44,6 +44,8 @@ function Header() {
       });
   }
 
+  const username = userInfo?.username;
+
   return (
     <header>
       <Link to="/" className="logo">Blog</Link>
@@ -51,7 +53,7 @@ function Header() {
         {username && (
           <>
             <Link to="/create">Create new post</Link>
-            <a onClick={logout}>Logout</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); logout(); }}>Logout</a>
           </>
         )}
         {!username && (
