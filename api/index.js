@@ -3,6 +3,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 require("dotenv").config();
 const User = require("./models/User");
+const Post = require("./models/Post");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
@@ -125,9 +126,22 @@ app.post("/posts", upload.single("image"), async (req, res) => {
         const dropboxPath = `/uploads/${Date.now()}_${imageFile.originalname}`;
         const fileContent = fs.readFileSync(imageFile.path);
         
-        await dbx.filesUpload({ path: dropboxPath, contents: fileContent });
+        const dropboxResponse = await dbx.filesUpload({ path: dropboxPath, contents: fileContent });
 
-        // save the file URL and other post details to MongoDB
+        const sharedLinkResponse = await dbx.sharingCreateSharedLinkWithSettings({
+            path: dropboxResponse.result.path_lower,
+        });
+
+        const imageUrl = sharedLinkResponse.result.url.replace("?dl=0", "?raw=1");
+
+        const post = new Post({
+            title,
+            summary,
+            content,
+            imageUrl,
+        });
+
+        await post.save();
 
         res.status(201).json({ message: "Post created successfully!" });
 
