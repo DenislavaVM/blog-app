@@ -25,7 +25,7 @@ function FullArticle() {
           setPost(postData);
           setLikes(postData.likes?.length || 0);
           setComments(postData.comments || []);
-          setIsLiked(postData.likes?.includes(userId) || false); // Initialize the isLiked state
+          setIsLiked(postData.likes?.includes(userId) || false);
         } else {
           setError("Failed to fetch post");
         }
@@ -52,7 +52,7 @@ function FullArticle() {
 
     fetchPost();
     fetchUserData();
-  }, [id, navigate, userId]); // Added userId to the dependency array to update isLiked state
+  }, [id, navigate, userId]); 
 
   const handleLike = async () => {
     if (!userId) return;
