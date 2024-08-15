@@ -8,7 +8,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
-const { Dropbox } = require("dropbox");
 const fs = require("fs");
 
 const app = express();
@@ -23,8 +22,6 @@ app.use(cookieParser());
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log("Connected to MongoDB"))
     .catch(err => console.error("Failed to connect to MongoDB", err));
-
-const dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN });
 
 const upload = multer({ dest: "uploads/" });
 
@@ -104,7 +101,6 @@ app.get("/profile", (req, res) => {
     });
 });
 
-
 app.post("/logout", (req, res) => {
     res.cookie("token", "", {
         httpOnly: true,
@@ -123,16 +119,7 @@ app.post("/posts", upload.single("image"), async (req, res) => {
             return res.status(400).json({ error: "Image is required" });
         }
 
-        const dropboxPath = `/uploads/${Date.now()}_${imageFile.originalname}`;
-        const fileContent = fs.readFileSync(imageFile.path);
-        
-        const dropboxResponse = await dbx.filesUpload({ path: dropboxPath, contents: fileContent });
-
-        const sharedLinkResponse = await dbx.sharingCreateSharedLinkWithSettings({
-            path: dropboxResponse.result.path_lower,
-        });
-
-        const imageUrl = sharedLinkResponse.result.url.replace("?dl=0", "?raw=1");
+        const imageUrl = `/uploads/${imageFile.filename}`;
 
         const post = new Post({
             title,
@@ -144,8 +131,6 @@ app.post("/posts", upload.single("image"), async (req, res) => {
         await post.save();
 
         res.status(201).json({ message: "Post created successfully!" });
-
-        fs.unlinkSync(imageFile.path);
     } catch (error) {
         console.error("Error creating post:", error);
         res.status(500).json({ error: "Failed to create post" });
