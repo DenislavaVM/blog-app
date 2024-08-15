@@ -13,6 +13,7 @@ const routes = (
     <Route path="/login" element={<LoginPage />} /> 
     <Route path="/register" element={<RegisterPage />} /> 
     <Route path="/create" element={<CreatePostPage />} /> 
+    <Route path="/post/:id" element={<FullArticle />} />
     {posts.map(post => (
       <Route key={post.id} path={`/post/${post.id}`} element={<FullArticle post={post} />} />
     ))}
