@@ -4,6 +4,8 @@ import "./CommentsSection.css";
 
 function FullArticle() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  
   const [post, setPost] = useState(null);
   const [likes, setLikes] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
@@ -11,7 +13,8 @@ function FullArticle() {
   const [commentContent, setCommentContent] = useState("");
   const [username, setUsername] = useState("");
   const [userId, setUserId] = useState(null);
-  const navigate = useNavigate();
+  const [userUsername, setUserUsername] = useState("");
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -22,11 +25,12 @@ function FullArticle() {
           setPost(postData);
           setLikes(postData.likes?.length || 0);
           setComments(postData.comments || []);
+          setIsLiked(postData.likes?.includes(userId) || false); // Initialize the isLiked state
         } else {
-          console.error("Failed to fetch post");
+          setError("Failed to fetch post");
         }
       } catch (error) {
-        console.error("Error fetching post:", error);
+        setError("Error fetching post");
       }
     };
 
@@ -39,6 +43,7 @@ function FullArticle() {
         if (response.ok) {
           const userData = await response.json();
           setUserId(userData.id);
+          setUserUsername(userData.username);
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -47,7 +52,7 @@ function FullArticle() {
 
     fetchPost();
     fetchUserData();
-  }, [id, navigate]);
+  }, [id, navigate, userId]); // Added userId to the dependency array to update isLiked state
 
   const handleLike = async () => {
     if (!userId) return;
@@ -60,8 +65,12 @@ function FullArticle() {
       });
 
       const data = await response.json();
-      setLikes(data.likes);
-      setIsLiked(!isLiked);
+      if (response.ok) {
+        setLikes(data.likes);
+        setIsLiked(!isLiked);
+      } else {
+        console.error("Error liking post:", data.error);
+      }
     } catch (error) {
       console.error("Error liking post:", error);
     }
@@ -84,7 +93,6 @@ function FullArticle() {
         setComments(data.comments || []);
         setCommentContent("");
         setUsername("");
-        window.location.reload();
       } else {
         console.error("Failed to add comment:", data.error);
       }
@@ -97,6 +105,12 @@ function FullArticle() {
     return <p>Loading...</p>;
   }
 
+  if (error) {
+    return <p>{error}</p>;
+  }
+
+  const isAuthor = userUsername === post.author;
+
   return (
     <div className="full-article">
       <h1>{post.title}</h1>
@@ -106,6 +120,9 @@ function FullArticle() {
         <button onClick={handleLike} disabled={!userId}>
           {isLiked ? "Unlike" : "Like"} ({likes})
         </button>
+        {isAuthor && (
+          <button onClick={() => navigate(`/post/${id}/edit`)}>Edit Post</button>
+        )}
       </div>
       <div className="comments-section">
         <h2>Comments</h2>

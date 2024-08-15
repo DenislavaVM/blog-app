@@ -7,24 +7,19 @@ const path = require("path");
 
 const app = express();
 
-// Middleware
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 app.use(express.json());
 app.use(cookieParser());
 
-// Serve static files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log("Connected to MongoDB"))
     .catch(err => console.error("Failed to connect to MongoDB", err));
 
-// Routes
-const postRoutes = require('./routes/postRoutes');
-app.use('/api', postRoutes);
+const postRoutes = require("./routes/postRoutes");
+app.use("/api", postRoutes);
 
-// User Authentication Routes (not yet refactored into separate files)
 const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -69,22 +64,18 @@ app.post("/login", async (req, res) => {
             return res.status(400).json({ error: "Invalid password" });
         }
 
-        jwt.sign({ username, id: existingUser._id }, secret, { expiresIn: "1h" }, (error, token) => {
-            if (error) {
-                throw error;
-            }
+        const token = jwt.sign({ username, id: existingUser._id }, secret, { expiresIn: "1h" });
 
-            res.cookie("token", token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "Strict",
-                maxAge: 3600000 // 1 hour
-            });
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Strict",
+            maxAge: 3600000 // 1 hour
+        });
 
-            res.json({
-                id: existingUser._id,
-                username,
-            });
+        res.json({
+            id: existingUser._id,
+            username,
         });
 
     } catch (error) {
@@ -117,7 +108,6 @@ app.post("/logout", (req, res) => {
     }).json({ message: "Logout successful" });
 });
 
-// Serve static assets if in production
 if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, "client/build")));
 
@@ -126,7 +116,6 @@ if (process.env.NODE_ENV === "production") {
     });
 }
 
-// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

@@ -5,7 +5,7 @@ import FullArticle from "../components/fullArticle/FullArticle";
 import LoginPage from "../components/LoginPage";
 import RegisterPage from "../components/RegisterPage";
 import CreatePostPage from "../components/CreatePostPage";
-import posts from "../data/posts"; 
+import EditPost from "../components/pages/EditPostPage";
 
 const routes = (
   <>
@@ -14,9 +14,7 @@ const routes = (
     <Route path="/register" element={<RegisterPage />} />
     <Route path="/create" element={<CreatePostPage />} />
     <Route path="/post/:id" element={<FullArticle />} />
-    {posts.map(post => (
-      <Route key={post.id} path={`/post/${post.id}`} element={<FullArticle post={post} />} />
-    ))}
+    <Route path="/post/:id/edit" element={<EditPost />} /> 
   </>
 );
 

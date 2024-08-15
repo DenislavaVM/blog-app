@@ -1,11 +1,11 @@
-const Post = require('../models/Post');
-const User = require('../models/User');  // Import the User model
-const jwt = require('jsonwebtoken');
+const Post = require("../models/Post");
+const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 const secret = process.env.JWT_SECRET;
 
 async function getPosts(req, res) {
   try {
-    const posts = await Post.find().populate("comments.user", "username"); 
+    const posts = await Post.find().populate("comments.user", "username");
     res.json(posts);
   } catch (error) {
     console.error("Error fetching posts:", error);
@@ -57,7 +57,6 @@ async function createPost(req, res) {
       });
 
       const savedPost = await post.save();
-
       res.status(201).json({
         message: "Post created successfully!",
         post: savedPost
@@ -85,6 +84,7 @@ async function likePost(req, res) {
     await post.save();
     res.json({ message: "Like status updated", likes: post.likes.length });
   } catch (error) {
+    console.error("Error updating like status:", error);
     res.status(500).json({ error: "Failed to update like status" });
   }
 }
@@ -99,9 +99,15 @@ async function commentOnPost(req, res) {
       return res.status(404).json({ error: "Post not found" });
     }
 
+    let commentUsername = username;
+    if (userId) {
+      const user = await User.findById(userId);
+      commentUsername = user ? user.username : username;
+    }
+
     const comment = {
       user: userId ? userId : null,
-      username: userId ? (await User.findById(userId)).username : username, // Use username if guest
+      username: commentUsername,
       content,
     };
 
@@ -115,10 +121,46 @@ async function commentOnPost(req, res) {
   }
 }
 
+async function updatePost(req, res) {
+  const { id } = req.params;
+  const { title, summary, content } = req.body;
+  const imageFile = req.file;
+  const { token } = req.cookies;
+
+  try {
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
+    }
+
+    const decoded = jwt.verify(token, secret);
+    const post = await Post.findById(id);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    if (post.author !== decoded.username) {
+      return res.status(403).json({ error: "Forbidden: You are not the author of this post" });
+    }
+
+    if (title) post.title = title;
+    if (summary) post.summary = summary;
+    if (content) post.content = content;
+    if (imageFile) post.imageUrl = `/uploads/${imageFile.filename}`;
+
+    const updatedPost = await post.save();
+    res.json({ message: "Post updated successfully", post: updatedPost });
+  } catch (error) {
+    console.error("Error updating post:", error);
+    res.status(500).json({ error: "Failed to update post" });
+  }
+}
+
 module.exports = {
   getPosts,
   getPostById,
   createPost,
   likePost,
   commentOnPost,
+  updatePost,
 };
