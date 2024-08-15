@@ -62,7 +62,7 @@ div.post {
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  align-items: center
+  align-items: center; 
 }
 
 div.post:hover {
@@ -146,12 +146,13 @@ div.post .footer {
   margin: 40px auto;
   background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); 
+  text-align: left; 
 }
 
 .full-article h1 {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 3rem; 
+  font-size: 3rem;
   margin-bottom: 20px;
   color: #333;
   text-align: center; 
@@ -159,6 +160,7 @@ div.post .footer {
 
 .full-article img {
   max-width: 100%;
+  height: auto; 
   border-radius: 8px;
   margin: 20px 0; 
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
@@ -180,9 +182,30 @@ div.post .footer {
   font-weight: bold;
   text-decoration: none;
   transition: color 0.3s ease, text-shadow 0.3s ease;
+  text-align: center; 
 }
 
 .full-article a.read-more:hover {
   color: #0056b3;
   text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
+}
+
+.full-article blockquote {
+  margin: 20px 0;
+  padding: 15px 20px;
+  background-color: #f9f9f9;
+  border-left: 5px solid #007bff;
+  color: #555;
+  font-style: italic;
+}
+
+.full-article ul, .full-article ol {
+  margin: 20px 0;
+  padding-left: 40px; 
+  color: #555;
+  line-height: 1.8rem;
+}
+
+.full-article li {
+  margin-bottom: 10px; 
 }
