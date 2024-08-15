@@ -7,10 +7,12 @@ export default function CreatePostPage() {
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(ev) {
     ev.preventDefault();
+    setIsLoading(true);
 
     const formData = new FormData();
     formData.append("title", title);
@@ -26,14 +28,18 @@ export default function CreatePostPage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
         alert("Post created successfully!");
-        navigate("/");
+        navigate(`/post/${data.post._id}`);
       } else {
-        alert("Failed to create post.");
+        const errorData = await response.json();
+        alert(`Failed to create post: ${errorData.error}`);
       }
     } catch (error) {
       console.error("An error occurred while creating the post:", error);
       alert("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -66,7 +72,9 @@ export default function CreatePostPage() {
           accept="image/*"
           onChange={(ev) => setImage(ev.target.files[0])}
         />
-        <button type="submit">Create post</button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? "Creating..." : "Create post"}
+        </button>
       </form>
     </div>
   );

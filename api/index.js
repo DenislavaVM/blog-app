@@ -9,6 +9,7 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
 const fs = require("fs");
+const path = require("path");
 
 const app = express();
 
@@ -18,6 +19,8 @@ const secret = process.env.JWT_SECRET;
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 app.use(express.json());
 app.use(cookieParser());
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log("Connected to MongoDB"))
@@ -114,26 +117,51 @@ app.post("/posts", upload.single("image"), async (req, res) => {
     try {
         const { title, summary, content } = req.body;
         const imageFile = req.file;
+        const { token } = req.cookies;
 
-        if (!imageFile) {
-            return res.status(400).json({ error: "Image is required" });
+        if (!token) {
+            return res.status(401).json({ error: "Unauthorized: No token provided" });
         }
 
-        const imageUrl = `/uploads/${imageFile.filename}`;
+        jwt.verify(token, secret, async (err, userInfo) => {
+            if (err) {
+                return res.status(401).json({ error: "Unauthorized: Invalid token" });
+            }
 
-        const post = new Post({
-            title,
-            summary,
-            content,
-            imageUrl,
+            if (!imageFile) {
+                return res.status(400).json({ error: "Image is required" });
+            }
+
+            const imageUrl = `/uploads/${imageFile.filename}`;
+
+            const post = new Post({
+                title,
+                summary,
+                content,
+                imageUrl,
+                author: userInfo.username,
+            });
+
+            const savedPost = await post.save();
+
+            res.status(201).json({
+                message: "Post created successfully!",
+                post: savedPost
+            });
         });
-
-        await post.save();
-
-        res.status(201).json({ message: "Post created successfully!" });
     } catch (error) {
         console.error("Error creating post:", error);
         res.status(500).json({ error: "Failed to create post" });
+    }
+});
+
+app.get("/posts", async (req, res) => {
+    try {
+        const posts = await Post.find();
+        res.json(posts);
+    } catch (error) {
+        console.error("Error fetching posts:", error);
+        res.status(500).json({ error: "Failed to fetch posts" });
     }
 });
 
