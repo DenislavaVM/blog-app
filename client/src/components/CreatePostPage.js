@@ -30,7 +30,7 @@ export default function CreatePostPage() {
       if (response.ok) {
         const data = await response.json();
         alert("Post created successfully!");
-        navigate(`/post/${data.post._id}`);
+        navigate("/");
       } else {
         const errorData = await response.json();
         alert(`Failed to create post: ${errorData.error}`);
