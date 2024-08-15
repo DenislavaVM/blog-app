@@ -16,11 +16,15 @@ function FullArticle() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/posts/${id}`);
-        const postData = await response.json();
-        setPost(postData);
-        setLikes(postData.likes?.length || 0);
-        setComments(postData.comments || []);
+        const response = await fetch(`http://localhost:5000/api/posts/${id}`);
+        if (response.ok) {
+          const postData = await response.json();
+          setPost(postData);
+          setLikes(postData.likes?.length || 0);
+          setComments(postData.comments || []);
+        } else {
+          console.error("Failed to fetch post");
+        }
       } catch (error) {
         console.error("Error fetching post:", error);
       }
@@ -49,7 +53,7 @@ function FullArticle() {
     if (!userId) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/posts/${post._id}/like`, {
+      const response = await fetch(`http://localhost:5000/api/posts/${post._id}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId }),
@@ -69,7 +73,7 @@ function FullArticle() {
     if (!commentContent || (!userId && !username)) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/posts/${post._id}/comment`, {
+      const response = await fetch(`http://localhost:5000/api/posts/${post._id}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, username, content: commentContent }),
@@ -78,9 +82,9 @@ function FullArticle() {
       const data = await response.json();
       if (response.ok) {
         setComments(data.comments || []);
-        setCommentContent(""); 
-        setUsername(""); 
-        window.location.reload(); 
+        setCommentContent("");
+        setUsername("");
+        window.location.reload();
       } else {
         console.error("Failed to add comment:", data.error);
       }
