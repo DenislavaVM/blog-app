@@ -1,12 +1,12 @@
 import React, { useContext, useState } from "react";
 import { Navigate } from "react-router-dom";
 import "./AuthContainer.css";
-import { UserContext } from "../context/UserContext"
+import { UserContext } from "../context/UserContext";
 
 function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [redirect, setRedirect] = useState(false); 
+  const [redirect, setRedirect] = useState(false);
   const { setUserInfo } = useContext(UserContext);
 
   async function login(ev) {
@@ -17,16 +17,16 @@ function LoginPage() {
         method: "POST",
         body: JSON.stringify({ username, password }),
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        credentials: "include", 
       });
 
-      const data = await response.json(); 
+      const data = await response.json();
 
       if (response.ok) {
         setUserInfo(data); 
-        setRedirect(true); 
+        setRedirect(true);
       } else {
-        alert("Login failed: " + data.error);
+        alert("Login failed: " + (data.error || "Unknown error"));
       }
     } catch (error) {
       console.error("An error occurred during login:", error);
@@ -35,7 +35,7 @@ function LoginPage() {
   }
 
   if (redirect) {
-    return <Navigate to="/" />; 
+    return <Navigate to="/" />;
   }
 
   return (
@@ -44,7 +44,7 @@ function LoginPage() {
       <form onSubmit={login}>
         <input
           type="text"
-          placeholder="Name"
+          placeholder="Username"
           value={username}
           onChange={ev => setUsername(ev.target.value)}
         />
