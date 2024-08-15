@@ -155,6 +155,7 @@ app.post("/posts", upload.single("image"), async (req, res) => {
     }
 });
 
+
 app.get("/posts", async (req, res) => {
     try {
         const posts = await Post.find();
