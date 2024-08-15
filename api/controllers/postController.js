@@ -1,4 +1,5 @@
 const Post = require('../models/Post');
+const User = require('../models/User');  // Import the User model
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
 
@@ -93,15 +94,14 @@ async function commentOnPost(req, res) {
   const { userId, username, content } = req.body;
 
   try {
-    const user = await User.findById(userId); 
     const post = await Post.findById(id);
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
     }
 
     const comment = {
-      user: user ? user._id : null,
-      username: user ? user.username : username, 
+      user: userId ? userId : null,
+      username: userId ? (await User.findById(userId)).username : username, // Use username if guest
       content,
     };
 
