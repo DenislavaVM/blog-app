@@ -8,7 +8,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
-const fs = require("fs");
 const path = require("path");
 
 const app = express();
@@ -155,10 +154,9 @@ app.post("/posts", upload.single("image"), async (req, res) => {
     }
 });
 
-
 app.get("/posts", async (req, res) => {
     try {
-        const posts = await Post.find();
+        const posts = await Post.find().populate("comments.user", "username"); 
         res.json(posts);
     } catch (error) {
         console.error("Error fetching posts:", error);
@@ -169,7 +167,7 @@ app.get("/posts", async (req, res) => {
 app.get("/posts/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        const post = await Post.findById(id);
+        const post = await Post.findById(id).populate("comments.user", "username");
         if (!post) {
             return res.status(404).json({ error: "Post not found" });
         }
@@ -180,6 +178,60 @@ app.get("/posts/:id", async (req, res) => {
     }
 });
 
+app.post("/posts/:id/like", async (req, res) => {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    try {
+        const post = await Post.findById(id);
+
+        if (!post.likes.includes(userId)) {
+            post.likes.push(userId);
+        } else {
+            post.likes = post.likes.filter((likeId) => likeId.toString() !== userId);
+        }
+
+        await post.save();
+        res.json({ message: "Like status updated", likes: post.likes.length });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to update like status" });
+    }
+});
+
+app.post("/posts/:id/comment", async (req, res) => {
+    const { id } = req.params;
+    const { userId, username, content } = req.body;
+
+    try {
+        const user = await User.findById(userId); 
+        const post = await Post.findById(id);
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+
+        const comment = {
+            user: user ? user._id : null,
+            username: user ? user.username : username, 
+            content,
+        };
+
+        post.comments.push(comment);
+        await post.save();
+
+        res.json({ message: "Comment added", comments: post.comments });
+    } catch (error) {
+        console.error("Error adding comment:", error);
+        res.status(500).json({ error: "Failed to add comment" });
+    }
+});
+
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, "client/build")));
+
+    app.get("*", (req, res) => {
+        res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+    });
+}
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

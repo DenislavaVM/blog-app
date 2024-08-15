@@ -54,7 +54,7 @@ function FullArticle() {
   }, [post, userId]);
 
   const handleLike = async () => {
-    if (!userId) return;
+    if (!userId || !post?._id) return;
 
     try {
       const response = await fetch(`http://localhost:5000/posts/${post._id}/like`, {
@@ -62,6 +62,10 @@ function FullArticle() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to update like status");
+      }
 
       const data = await response.json();
       setLikes(data.likes);
@@ -74,7 +78,7 @@ function FullArticle() {
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
 
-    if (!commentContent || (!userId && !username)) return;
+    if (!commentContent || (!userId && !username) || !post?._id) return;
 
     try {
       const response = await fetch(`http://localhost:5000/posts/${post._id}/comment`, {
@@ -83,15 +87,15 @@ function FullArticle() {
         body: JSON.stringify({ userId, username, content: commentContent }),
       });
 
-      const data = await response.json();
-      if (response.ok) {
-        setComments(data.comments || []);
-        setCommentContent(""); 
-        setUsername(""); //
-        window.location.reload(); 
-      } else {
-        console.error("Failed to add comment:", data.error);
+      if (!response.ok) {
+        throw new Error("Failed to add comment");
       }
+
+      const data = await response.json();
+      setComments(data.comments || []);
+      setCommentContent(""); 
+      setUsername(""); 
+      window.location.reload(); 
     } catch (error) {
       console.error("Error adding comment:", error);
     }
@@ -116,8 +120,8 @@ function FullArticle() {
         {comments.length === 0 ? (
           <p>No comments yet. Be the first to comment!</p>
         ) : (
-          comments.map((comment, index) => (
-            <div key={index}>
+          comments.map((comment) => (
+            <div key={comment._id}>
               <p><strong>{comment.user?.username || comment.username || "Anonymous"}</strong> {comment.content}</p>
             </div>
           ))
