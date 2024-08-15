@@ -1,14 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { calculateReadingTime } from "../utils/readingTime";
 
 function Post({ post }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const toggleDescription = () => {
-    setIsExpanded(!isExpanded);
-  };
-
   const readingTime = calculateReadingTime(post.content);
 
   return (
@@ -24,13 +18,13 @@ function Post({ post }) {
           </Link>
           <time>{new Date(post.createdAt).toLocaleDateString()}</time>
         </p>
-        <p className={`description ${isExpanded ? "expanded" : ""}`}>
+        <p className="description">
           {post.summary}
         </p>
         <div className="footer">
           <span className="reading-time">{readingTime} min read</span>
-          <Link to={`/post/${post._id}`} className="read-more" onClick={toggleDescription}>
-            {isExpanded ? "Read Less" : "Read More"}
+          <Link to={`/post/${post._id}`} className="read-more">
+            Read More
           </Link>
         </div>
       </div>
