@@ -5,7 +5,6 @@ const upload = multer({ dest: "uploads/" });
 
 const router = express.Router();
 
-// Define routes without 'api' prefix since it's added in index.js
 router.get("/posts", getPosts);
 router.get("/posts/:id", getPostById);
 router.post("/posts", upload.single("image"), createPost);

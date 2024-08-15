@@ -43,37 +43,6 @@ function EditPost() {
   const handleFileChange = (e) => {
     setImageFile(e.target.files[0]); 
   };
-/*
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const formData = new FormData();
-      formData.append("title", post.title);
-      formData.append("summary", post.summary);
-      formData.append("content", post.content);
-      if (imageFile) {
-        formData.append("image", imageFile); 
-      }
-
-      const response = await fetch(`http://localhost:5000/posts/${id}`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${document.cookie.split("=")[1]}`
-        },
-        body: formData
-      });
-
-      if (response.ok) {
-        navigate(`/post/${id}`);
-      } else {
-        setError("Failed to update post");
-      }
-    } catch (error) {
-      setError("Error updating post");
-    }
-  };
-*/
 
 const handleSubmit = async (e) => {
   e.preventDefault();
