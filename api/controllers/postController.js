@@ -1,4 +1,5 @@
 const Post = require("../models/Post");
+const User = require("../models/User");  
 const jwt = require("jsonwebtoken");
 const secret = process.env.JWT_SECRET;
 
@@ -52,13 +53,13 @@ async function createPost(req, res) {
         summary,
         content,
         imageUrl,
-        author: userInfo.username, 
+        author: userInfo.username,
       });
 
       const savedPost = await post.save();
       res.status(201).json({
         message: "Post created successfully!",
-        post: savedPost
+        post: savedPost,
       });
     });
   } catch (error) {
@@ -100,14 +101,24 @@ async function commentOnPost(req, res) {
 
     let commentUsername = username;
     if (userId) {
-      const user = await User.findById(userId);
-      commentUsername = user ? user.username : username;
+      const user = await User.findById(userId);  
+      if (!user) {
+        console.error("User not found");
+        return res.status(404).json({ error: "User not found" });
+      }
+      commentUsername = user.username;
+    }
+
+    if (!content || typeof content !== "string") {
+      console.error("Invalid comment content");
+      return res.status(400).json({ error: "Invalid comment content" });
     }
 
     const comment = {
       user: userId ? userId : null,
       username: commentUsername,
       content,
+      createdAt: new Date(),
     };
 
     post.comments.push(comment);
@@ -175,7 +186,7 @@ async function deletePost(req, res) {
       return res.status(403).json({ error: "Forbidden: You are not the author of this post" });
     }
 
-    await post.deleteOne(); // Use deleteOne() to remove the post
+    await post.deleteOne(); 
     res.json({ message: "Post deleted successfully" });
   } catch (error) {
     console.error("Error deleting post:", error);

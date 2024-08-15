@@ -1,4 +1,3 @@
-// FullArticle.js
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./CommentsSection.css";
@@ -96,6 +95,7 @@ function FullArticle() {
         setUsername("");
       } else {
         console.error("Failed to add comment:", data.error);
+        alert("Failed to add comment");
       }
     } catch (error) {
       console.error("Error adding comment:", error);
@@ -114,7 +114,7 @@ function FullArticle() {
 
       if (response.ok) {
         alert("Post deleted successfully!");
-        navigate("/"); // Redirect to home after deletion
+        navigate("/"); 
       } else {
         console.error("Failed to delete post");
         alert("Failed to delete post");
@@ -146,7 +146,7 @@ function FullArticle() {
         {isAuthor && (
           <>
             <button onClick={() => navigate(`/post/${id}/edit`)}>Edit Post</button>
-            <button onClick={handleDelete}>Delete Post</button> {/* Delete button */}
+            <button onClick={handleDelete}>Delete Post</button>
           </>
         )}
       </div>
