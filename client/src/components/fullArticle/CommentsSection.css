@@ -1,0 +1,109 @@
+.article-actions {
+  display: flex;
+  justify-content: flex-start; 
+  align-items: center; 
+  margin-top: 20px;
+  padding: 10px 0;
+  border-top: 1px solid #e0e0e0;
+}
+
+.article-actions button {
+  background-color: #007bff;
+  color: white;
+  font-size: 1rem;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: bold;
+  margin-right: 10px; 
+}
+
+.article-actions button:hover {
+  background-color: #0056b3;
+}
+
+.article-actions button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.comments-section {
+  margin: 40px auto; 
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 800px; 
+}
+
+.comments-section h2 {
+  font-family: 'Rubik', sans-serif;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center; 
+}
+
+.comment {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  flex-direction: column; 
+  text-align: center; 
+}
+
+.comment .comment-details {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px; 
+  text-align: center; 
+}
+
+.comments-section form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.comments-section form input[type="text"],
+.comments-section form textarea {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.comments-section form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.comments-section form button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  align-self: flex-start; 
+}
+
+.comments-section form button:hover {
+  background-color: #0056b3;
+}
+
+.comments-section form button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}

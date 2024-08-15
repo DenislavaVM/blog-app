@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import "./CommentsSection.css";
 
 function FullArticle() {
   const { id } = useParams();
@@ -34,9 +35,6 @@ function FullArticle() {
         if (response.ok) {
           const userData = await response.json();
           setUserId(userData.id);
-        } else if (response.status === 401) {
-          console.warn("Unauthorized access. Redirecting to login.");
-          navigate("/login");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -47,14 +45,8 @@ function FullArticle() {
     fetchUserData();
   }, [id, navigate]);
 
-  useEffect(() => {
-    if (post && userId) {
-      setIsLiked(post.likes?.includes(userId));
-    }
-  }, [post, userId]);
-
   const handleLike = async () => {
-    if (!userId || !post?._id) return;
+    if (!userId) return;
 
     try {
       const response = await fetch(`http://localhost:5000/posts/${post._id}/like`, {
@@ -62,10 +54,6 @@ function FullArticle() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to update like status");
-      }
 
       const data = await response.json();
       setLikes(data.likes);
@@ -78,7 +66,7 @@ function FullArticle() {
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
 
-    if (!commentContent || (!userId && !username) || !post?._id) return;
+    if (!commentContent || (!userId && !username)) return;
 
     try {
       const response = await fetch(`http://localhost:5000/posts/${post._id}/comment`, {
@@ -87,15 +75,15 @@ function FullArticle() {
         body: JSON.stringify({ userId, username, content: commentContent }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to add comment");
-      }
-
       const data = await response.json();
-      setComments(data.comments || []);
-      setCommentContent(""); 
-      setUsername(""); 
-      window.location.reload(); 
+      if (response.ok) {
+        setComments(data.comments || []);
+        setCommentContent(""); 
+        setUsername(""); 
+        window.location.reload(); 
+      } else {
+        console.error("Failed to add comment:", data.error);
+      }
     } catch (error) {
       console.error("Error adding comment:", error);
     }
@@ -120,8 +108,8 @@ function FullArticle() {
         {comments.length === 0 ? (
           <p>No comments yet. Be the first to comment!</p>
         ) : (
-          comments.map((comment) => (
-            <div key={comment._id}>
+          comments.map((comment, index) => (
+            <div key={index}>
               <p><strong>{comment.user?.username || comment.username || "Anonymous"}</strong> {comment.content}</p>
             </div>
           ))

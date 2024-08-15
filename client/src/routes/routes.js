@@ -1,7 +1,7 @@
 import React from "react";
 import { Route } from "react-router-dom";
 import Home from "../components/Home";
-import FullArticle from "../components/FullArticle";
+import FullArticle from "../components/fullArticle/FullArticle";
 import LoginPage from "../components/LoginPage";
 import RegisterPage from "../components/RegisterPage";
 import CreatePostPage from "../components/CreatePostPage";
