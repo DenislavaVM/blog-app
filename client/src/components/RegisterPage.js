@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import "./AuthContainer.css";
 
 function RegisterPage() {
@@ -27,7 +27,7 @@ function RegisterPage() {
       if (response.ok) { 
         alert("Registration successful");
       } else {
-        alert("Registration failed: " + data.error); // Display the server's error message
+        alert("Registration failed: " + data.error);
       }
     } catch (error) {
       console.error("An error occurred during registration:", error);

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { calculateReadingTime } from '../utils/readingTime';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { calculateReadingTime } from "../utils/readingTime";
 
 function Post({ post }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -22,13 +22,13 @@ function Post({ post }) {
           <Link to="#" className="author" aria-label={`Author: ${post.author}`}>{post.author}</Link>
           <time>{post.date}</time>
         </p>
-        <p className={`description ${isExpanded ? 'expanded' : ''}`}>
+        <p className={`description ${isExpanded ? "expanded" : ""}`}>
           {post.description}
         </p>
         <div className="footer">
           <span className="reading-time">{readingTime} min read</span>
           <Link to={`/post/${post.id}`} className="read-more" onClick={toggleDescription}>
-            {isExpanded ? 'Read Less' : 'Read More'}
+            {isExpanded ? "Read Less" : "Read More"}
           </Link>
         </div>
       </div>
