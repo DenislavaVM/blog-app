@@ -3,11 +3,14 @@ import Post from "./Post";
 
 function Home() {
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null);
+
 
   useEffect(() => {
     async function fetchPosts() {
       try {
-        const response = await fetch("http://localhost:5000/posts");
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/posts`);
         if (response.ok) {
           const data = await response.json();
           setPosts(data);
@@ -16,11 +19,22 @@ function Home() {
         }
       } catch (error) {
         console.error("Error fetching posts:", error);
+      } finally {
+        setLoading(false);  
       }
     }
 
     fetchPosts();
   }, []);
+
+  if (loading) {
+    return <p>Loading posts...</p>;
+  }
+
+  if (error) {
+    return <p>{error}</p>;
+  }
+
 
   return (
     <div>
