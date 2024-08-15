@@ -1,3 +1,4 @@
+// FullArticle.js
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./CommentsSection.css";
@@ -52,7 +53,7 @@ function FullArticle() {
 
     fetchPost();
     fetchUserData();
-  }, [id, navigate, userId]); 
+  }, [id, navigate, userId]);
 
   const handleLike = async () => {
     if (!userId) return;
@@ -101,6 +102,28 @@ function FullArticle() {
     }
   };
 
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this post?");
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/posts/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        alert("Post deleted successfully!");
+        navigate("/"); // Redirect to home after deletion
+      } else {
+        console.error("Failed to delete post");
+        alert("Failed to delete post");
+      }
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
+  };
+
   if (!post) {
     return <p>Loading...</p>;
   }
@@ -121,7 +144,10 @@ function FullArticle() {
           {isLiked ? "Unlike" : "Like"} ({likes})
         </button>
         {isAuthor && (
-          <button onClick={() => navigate(`/post/${id}/edit`)}>Edit Post</button>
+          <>
+            <button onClick={() => navigate(`/post/${id}/edit`)}>Edit Post</button>
+            <button onClick={handleDelete}>Delete Post</button> {/* Delete button */}
+          </>
         )}
       </div>
       <div className="comments-section">

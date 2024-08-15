@@ -1,5 +1,5 @@
 const express = require("express");
-const { getPosts, getPostById, createPost, likePost, commentOnPost, updatePost } = require("../controllers/postController");
+const { getPosts, getPostById, createPost, likePost, commentOnPost, updatePost, deletePost } = require("../controllers/postController");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
@@ -9,6 +9,7 @@ router.get("/posts", getPosts);
 router.get("/posts/:id", getPostById);
 router.post("/posts", upload.single("image"), createPost);
 router.put("/posts/:id", upload.single("image"), updatePost);
+router.delete("/posts/:id", deletePost); 
 router.post("/posts/:id/like", likePost);
 router.post("/posts/:id/comment", commentOnPost);
 

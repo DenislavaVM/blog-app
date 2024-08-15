@@ -155,6 +155,34 @@ async function updatePost(req, res) {
   }
 }
 
+async function deletePost(req, res) {
+  const { id } = req.params;
+  const token = req.cookies.token;
+
+  try {
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
+    }
+
+    const decoded = jwt.verify(token, secret);
+    const post = await Post.findById(id);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    if (post.author !== decoded.username) {
+      return res.status(403).json({ error: "Forbidden: You are not the author of this post" });
+    }
+
+    await post.deleteOne(); // Use deleteOne() to remove the post
+    res.json({ message: "Post deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json({ error: "Failed to delete post" });
+  }
+}
+
 module.exports = {
   getPosts,
   getPostById,
@@ -162,4 +190,5 @@ module.exports = {
   likePost,
   commentOnPost,
   updatePost,
+  deletePost,
 };
