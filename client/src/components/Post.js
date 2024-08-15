@@ -8,7 +8,10 @@ function Post({ post }) {
   return (
     <div className="post">
       <div className="image">
-        <img src={`http://localhost:5000${post.imageUrl}`} alt={post.title} />
+        <img 
+          src={`${process.env.REACT_APP_API_URL}${post.imageUrl}`} 
+          alt={post.title} 
+        />
       </div>
       <div className="content">
         <h2>{post.title}</h2>
