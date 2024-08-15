@@ -1,87 +1,98 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import "./EditPostPage.css";
+import { useContext } from "react";
+import { UserContext } from "../../context/UserContext";
 
-function EditPost() {
+const EditPostPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const { userInfo } = useContext(UserContext);
   const [post, setPost] = useState({
     title: "",
-    summary: "",
     content: "",
-    imageUrl: ""
+    image: null,
   });
-
-  const [imageFile, setImageFile] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/posts/${id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setPost(data);
-          setLoading(false);
-        } else {
-          setError("Failed to fetch post");
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${id}`, {
+          method: "GET",
+          credentials: "include", 
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error fetching post: ${response.statusText}`);
         }
+
+        const data = await response.json();
+        if (data.author !== userInfo.username) {
+          throw new Error("Forbidden: You are not the author of this post");
+        }
+
+        setPost({
+          title: data.title || "",
+          content: data.content || "",
+          image: null,
+        });
       } catch (error) {
-        setError("Error fetching post");
+        console.error("Error fetching post:", error);
+        setError("Failed to load post. Please try again later.");
       }
     };
 
     fetchPost();
-  }, [id]);
+  }, [id, userInfo.username]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setPost(prevPost => ({ ...prevPost, [name]: value }));
+    const { name, value, files } = e.target;
+    if (name === "image") {
+      setPost({ ...post, image: files[0] });
+    } else {
+      setPost({ ...post, [name]: value });
+    }
   };
 
-  const handleFileChange = (e) => {
-    setImageFile(e.target.files[0]); 
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
     const formData = new FormData();
     formData.append("title", post.title);
-    formData.append("summary", post.summary);
     formData.append("content", post.content);
-    if (imageFile) {
-      formData.append("image", imageFile);
+    if (post.image) {
+      formData.append("image", post.image);
     }
 
-    const response = await fetch(`http://localhost:5000/api/posts/${id}`, {
-      method: "PUT",
-      headers: {
-        "Authorization": `Bearer ${document.cookie.split("=")[1]}`,
-      },
-      body: formData,
-    });
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/posts/${id}`, {
+        method: "PUT",
+        body: formData,
+        credentials: "include",
+      });
 
-    if (response.ok) {
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Error updating post");
+      }
+
       navigate(`/post/${id}`);
-    } else {
-      setError("Failed to update post");
+    } catch (error) {
+      console.error("Error updating post:", error);
+      alert("Failed to update post: " + error.message);
     }
-  } catch (error) {
-    setError("Error updating post");
-  }
-};
+  };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  if (error) {
+    return <p>{error}</p>;
+  }
 
   return (
-    <div className="edit-post">
+    <div className="edit-post-container">
       <h1>Edit Post</h1>
       <form onSubmit={handleSubmit}>
-        <div>
+        <div className="form-group">
           <label htmlFor="title">Title:</label>
           <input
             type="text"
@@ -92,17 +103,7 @@ const handleSubmit = async (e) => {
             required
           />
         </div>
-        <div>
-          <label htmlFor="summary">Summary:</label>
-          <textarea
-            id="summary"
-            name="summary"
-            value={post.summary}
-            onChange={handleChange}
-            required
-          ></textarea>
-        </div>
-        <div>
+        <div className="form-group">
           <label htmlFor="content">Content:</label>
           <textarea
             id="content"
@@ -112,19 +113,19 @@ const handleSubmit = async (e) => {
             required
           ></textarea>
         </div>
-        <div>
+        <div className="form-group">
           <label htmlFor="image">Image:</label>
           <input
             type="file"
             id="image"
             name="image"
-            onChange={handleFileChange}
+            onChange={handleChange}
           />
         </div>
         <button type="submit">Update Post</button>
       </form>
     </div>
   );
-}
+};
 
-export default EditPost;
+export default EditPostPage;

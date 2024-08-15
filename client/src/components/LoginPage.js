@@ -17,20 +17,19 @@ function LoginPage() {
         method: "POST",
         body: JSON.stringify({ username, password }),
         headers: { "Content-Type": "application/json" },
-        credentials: "include", 
+        credentials: "include",
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setUserInfo(data); 
-        setRedirect(true);
-      } else {
-        alert("Login failed: " + (data.error || "Unknown error"));
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
+
+      const data = await response.json();
+      setUserInfo(data);
+      setRedirect(true);
     } catch (error) {
       console.error("An error occurred during login:", error);
-      alert("An error occurred. Please try again.");
+      alert(error.message);
     }
   }
 
@@ -54,7 +53,6 @@ function LoginPage() {
           value={password}
           onChange={ev => setPassword(ev.target.value)}
         />
-        <a href="#">Forgot Your Password?</a>
         <button type="submit">Sign In</button>
       </form>
     </div>

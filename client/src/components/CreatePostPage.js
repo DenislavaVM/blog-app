@@ -21,11 +21,11 @@ export default function CreatePostPage() {
     formData.append("image", image);
 
     try {
-      const response = await fetch("http://localhost:5000/posts", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/posts`, {
         method: "POST",
         body: formData,
         credentials: "include",
-      });
+      });      
 
       if (response.ok) {
         const data = await response.json();

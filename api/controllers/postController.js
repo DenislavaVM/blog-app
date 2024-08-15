@@ -1,5 +1,4 @@
 const Post = require("../models/Post");
-const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const secret = process.env.JWT_SECRET;
 
@@ -53,7 +52,7 @@ async function createPost(req, res) {
         summary,
         content,
         imageUrl,
-        author: userInfo.username,
+        author: userInfo.username, 
       });
 
       const savedPost = await post.save();
@@ -125,7 +124,7 @@ async function updatePost(req, res) {
   const { id } = req.params;
   const { title, summary, content } = req.body;
   const imageFile = req.file;
-  const { token } = req.cookies;
+  const token = req.cookies.token;
 
   try {
     if (!token) {
